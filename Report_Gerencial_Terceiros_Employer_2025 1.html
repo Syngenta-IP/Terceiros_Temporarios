@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Report Gerencial | Terceiros Employer – Syngenta Seeds 2025</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<style>
+  /* ── SYNGENTA BRAND PALETTE ── */
+  :root{
+    --syn-dark:    #1C2B39;   /* dark navy/text */
+    --syn-green1:  #005C2E;   /* deep green */
+    --syn-green2:  #00A651;   /* primary green */
+    --syn-green3:  #78BE20;   /* lime/bright green */
+    --syn-green4:  #B8D986;   /* light green tint */
+    --syn-orange:  #F7941D;   /* accent orange */
+    --syn-white:   #FFFFFF;
+    --syn-offwhite:#F4F9F1;   /* very light green bg */
+    --syn-gray1:   #E8F0E2;   /* light green-gray */
+    --syn-gray2:   #C5D9B8;
+    --syn-gray3:   #6B7F5E;   /* muted green-gray */
+    --syn-gray4:   #3D5A32;
+    --card-bg:     rgba(0,166,81,0.08);
+    --border:      rgba(0,166,81,0.22);
+    --border2:     rgba(120,190,32,0.30);
+    --text:        #1C2B39;
+    --text-light:  #3D5A32;
+    --text-muted:  #6B7F5E;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--syn-offwhite);
+    color: var(--text);
+    font-size: 13px;
+  }
+
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    background: var(--syn-white);
+  }
+
+  /* ── TOOLBAR ── */
+  .toolbar {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 20px;
+    background: var(--syn-dark);
+    border-bottom: 3px solid var(--syn-green2);
+  }
+  .toolbar-title {
+    font-size: 13px; font-weight: 600;
+    color: var(--syn-green3); flex: 1;
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 14px; border-radius: 4px; font-size: 12px;
+    font-weight: 600; cursor: pointer; border: none; transition: all .18s;
+  }
+  .btn-outline {
+    background: transparent; color: var(--syn-green3);
+    border: 1px solid var(--syn-green2);
+  }
+  .btn-outline:hover { background: var(--syn-green2); color: #fff; }
+  .btn-success { background: var(--syn-green2); color: #fff; }
+  .btn-success:hover { background: var(--syn-green1); }
+  .btn-edit-active { background: var(--syn-orange)!important; color: #fff!important; }
+
+  /* ── HEADER ── */
+  .header {
+    padding: 0;
+    background: var(--syn-dark);
+    border-bottom: 4px solid var(--syn-green2);
+    position: relative; overflow: hidden;
+  }
+  .header-top-bar {
+    background: var(--syn-green1);
+    padding: 6px 30px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .header-badge {
+    display: inline-block;
+    background: var(--syn-green2);
+    color: #fff; font-size: 9px; font-weight: 700;
+    padding: 3px 10px; border-radius: 2px;
+    letter-spacing: 1.2px; text-transform: uppercase;
+  }
+  .header-badge-sub {
+    font-size: 10px; color: var(--syn-green4); letter-spacing: .3px;
+  }
+  .header-body {
+    padding: 22px 30px 20px;
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 16px;
+    position: relative;
+  }
+  .header-body::after {
+    content: '';
+    position: absolute; right: 0; top: 0; bottom: 0; width: 6px;
+    background: linear-gradient(180deg, var(--syn-green2) 0%, var(--syn-green3) 100%);
+  }
+  .header h1 {
+    font-size: 22px; font-weight: 700; color: #fff;
+    letter-spacing: -.3px; line-height: 1.2;
+  }
+  .header h2 {
+    font-size: 13px; font-weight: 400;
+    color: var(--syn-green3); margin-top: 5px;
+  }
+  .header-meta {
+    text-align: right; font-size: 11px;
+    color: var(--syn-gray2); line-height: 1.8;
+  }
+  .header-meta strong { color: var(--syn-green3); }
+
+  /* ── FILTERS ── */
+  .filters-section {
+    padding: 14px 30px;
+    background: var(--syn-gray1);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;
+  }
+  .filter-group {
+    display: flex; flex-direction: column; gap: 4px;
+    min-width: 138px; flex: 1;
+  }
+  .filter-group label {
+    font-size: 9.5px; font-weight: 700; color: var(--syn-green1);
+    text-transform: uppercase; letter-spacing: .8px;
+  }
+  .filter-group select {
+    background: #fff;
+    border: 1px solid var(--syn-green2);
+    border-radius: 4px; color: var(--text);
+    padding: 7px 9px; font-size: 11.5px;
+    outline: none; width: 100%; transition: border .15s; cursor: pointer;
+  }
+  .filter-group select:focus { border-color: var(--syn-green1); }
+  .filter-actions { display: flex; gap: 8px; align-items: flex-end; padding-bottom: 1px; }
+
+  /* ── KPI CARDS ── */
+  .kpi-section {
+    padding: 18px 30px;
+    display: grid; grid-template-columns: repeat(5,1fr); gap: 12px;
+    background: var(--syn-offwhite);
+    border-bottom: 1px solid var(--border);
+  }
+  .kpi-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 6px; padding: 14px 16px;
+    position: relative; overflow: hidden;
+    transition: transform .15s; box-shadow: 0 2px 8px rgba(0,92,46,.07);
+  }
+  .kpi-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: var(--syn-green2);
+  }
+  .kpi-card.orange::before { background: var(--syn-orange); }
+  .kpi-card.lime::before   { background: var(--syn-green3); }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,92,46,.13); }
+  .kpi-icon { font-size: 20px; margin-bottom: 6px; display: block; }
+  .kpi-label {
+    font-size: 9px; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: .7px; margin-bottom: 3px;
+  }
+  .kpi-value {
+    font-size: 20px; font-weight: 800; color: var(--syn-dark);
+    line-height: 1; letter-spacing: -.5px;
+  }
+  .kpi-value.orange { color: var(--syn-orange); }
+  .kpi-sub { font-size: 9.5px; color: var(--syn-green2); margin-top: 3px; }
+
+  /* ── SECTION TITLES ── */
+  .sec-title {
+    font-size: 10.5px; font-weight: 700; color: var(--syn-green1);
+    text-transform: uppercase; letter-spacing: .9px;
+    padding: 16px 30px 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sec-title::after {
+    content: ''; flex: 1; height: 2px;
+    background: linear-gradient(90deg, var(--syn-green2), transparent);
+    margin-left: 6px;
+  }
+
+  /* ── CHART LAYOUTS ── */
+  .charts-2col { padding: 0 30px 16px; display: grid; grid-template-columns: 2fr 1fr; gap: 14px; }
+  .charts-half { padding: 0 30px 16px; display: grid; grid-template-columns: 1fr 1fr;  gap: 14px; }
+  .chart-full  { padding: 0 30px 16px; }
+
+  .chart-card {
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 6px; padding: 14px 16px;
+    box-shadow: 0 1px 6px rgba(0,92,46,.05);
+  }
+  .chart-label {
+    font-size: 9.5px; font-weight: 700; color: var(--syn-green1);
+    text-transform: uppercase; letter-spacing: .7px;
+    margin-bottom: 10px; padding-bottom: 7px;
+    border-bottom: 2px solid var(--syn-green3);
+  }
+
+  /* Donut center */
+  .donut-wrap { position: relative; }
+  .donut-center {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -58%);
+    text-align: center; pointer-events: none;
+  }
+  .donut-center-val {
+    font-size: 22px; font-weight: 800;
+    color: var(--syn-dark); line-height: 1;
+  }
+  .donut-center-lbl {
+    font-size: 9px; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: .5px; margin-top: 2px;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    padding: 14px 30px; margin-top: 8px;
+    background: var(--syn-dark);
+    display: flex; justify-content: space-between;
+    align-items: center; font-size: 10px; color: var(--syn-gray2);
+  }
+  .footer strong { color: var(--syn-green3); }
+  .footer-logo {
+    font-size: 13px; font-weight: 800;
+    color: var(--syn-green2); letter-spacing: 1px;
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    .toolbar, .filter-actions { display: none!important; }
+    body { background: #fff!important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page { width: 100%; margin: 0; }
+    .kpi-card, .chart-card { break-inside: avoid; }
+    canvas { max-height: 180px!important; }
+  }
+
+  [contenteditable="true"] {
+    outline: 2px dashed var(--syn-orange)!important;
+    background: rgba(247,148,29,.06)!important; cursor: text;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <span class="toolbar-title">🌱 Syngenta Seeds — Report Gerencial Terceiros Employer 2025</span>
+  <button class="btn btn-outline" id="btnEdit" onclick="toggleEdit()">✏️ Editar</button>
+  <button class="btn btn-outline" onclick="window.print()">🖨️ Imprimir</button>
+  <button class="btn btn-success" onclick="exportPDF()">📄 Exportar PDF</button>
+</div>
+
+<div class="page" id="pageContent">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-top-bar">
+      <span class="header-badge">Gestão de Terceiros</span>
+      
+    </div>
+    <div class="header-body">
+      <div>
+        <h1>Report Gerencial — Fornecedor Employer</h1>
+        <h2>Syngenta Seeds | Recursos Terceiros · Ano de Referência 2025</h2>
+      </div>
+      <div class="header-meta">
+        <div><strong>Fornecedor:</strong> Employer</div>
+        <div><strong>Período:</strong> Jan – Dez 2025</div>
+        <div><strong>Emitido em:</strong> Abril / 2026</div>
+        <div><strong>Responsável:</strong> Camila Bonilla</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters-section">
+    <div class="filter-group">
+      <label>👤 Gestor Syngenta</label>
+      <select id="fGestor"><option value="">Todos os Gestores</option><option value="Adriano Cesar Ferreira">Adriano Cesar Ferreira</option>
+<option value="Aguinaldo Dickel">Aguinaldo Dickel</option>
+<option value="Aguinaldo Emerson Dickel">Aguinaldo Emerson Dickel</option>
+<option value="Ana Sousa">Ana Sousa</option>
+<option value="Andreia Romao">Andreia Romao</option>
+<option value="Audieri Oliveira">Audieri Oliveira</option>
+<option value="Bruno Carvalho">Bruno Carvalho</option>
+<option value="Carla Valdevite">Carla Valdevite</option>
+<option value="Cheila Chagas">Cheila Chagas</option>
+<option value="David Carlos de Almeida Baffa">David Carlos de Almeida Baffa</option>
+<option value="David Medeiros">David Medeiros</option>
+<option value="Dolfina Ferreira">Dolfina Ferreira</option>
+<option value="Dolfina de Fatima Ferreira">Dolfina de Fatima Ferreira</option>
+<option value="Douglas Prado">Douglas Prado</option>
+<option value="Douglas Prado de Oliveira">Douglas Prado de Oliveira</option>
+<option value="Edney Magalhaes">Edney Magalhaes</option>
+<option value="Elton Luis Favarin">Elton Luis Favarin</option>
+<option value="Evania Pereira da Silva">Evania Pereira da Silva</option>
+<option value="Fernando Adorno">Fernando Adorno</option>
+<option value="Fernando Alves">Fernando Alves</option>
+<option value="Filipe Bertagna">Filipe Bertagna</option>
+<option value="Francisco 61426644353">Francisco 61426644353</option>
+<option value="Francisco Citolin">Francisco Citolin</option>
+<option value="Gabriel Gossler">Gabriel Gossler</option>
+<option value="Genival Regis">Genival Regis</option>
+<option value="Guilherme Crubelatti">Guilherme Crubelatti</option>
+<option value="Guilherme de Sousa">Guilherme de Sousa</option>
+<option value="Gustavo Gondim">Gustavo Gondim</option>
+<option value="Gustavo Madalena">Gustavo Madalena</option>
+<option value="Hernane Rodrigues">Hernane Rodrigues</option>
+<option value="Juliana Aoki">Juliana Aoki</option>
+<option value="Karine Noronha">Karine Noronha</option>
+<option value="Laís Lange">Laís Lange</option>
+<option value="Luana Gonçalves">Luana Gonçalves</option>
+<option value="Luiz Paulo de Souza Costa">Luiz Paulo de Souza Costa</option>
+<option value="Maiara Cecilia Panho">Maiara Cecilia Panho</option>
+<option value="Marcell Philipe Silva Braga">Marcell Philipe Silva Braga</option>
+<option value="Marcelo LInardi Gomes">Marcelo LInardi Gomes</option>
+<option value="Marcio Goias Medeiros">Marcio Goias Medeiros</option>
+<option value="Marcos Corbellini">Marcos Corbellini</option>
+<option value="Marcos Costa SDO">Marcos Costa SDO</option>
+<option value="Maria Beatriz Silva">Maria Beatriz Silva</option>
+<option value="Matheus Junior Frank Willms">Matheus Junior Frank Willms</option>
+<option value="Matheus Willms">Matheus Willms</option>
+<option value="Michel Vargas">Michel Vargas</option>
+<option value="Paulo Fonseca">Paulo Fonseca</option>
+<option value="Raica Silva">Raica Silva</option>
+<option value="Ramon Pacífico">Ramon Pacífico</option>
+<option value="Renato Alexandre Malfato">Renato Alexandre Malfato</option>
+<option value="Ricardo Neto">Ricardo Neto</option>
+<option value="Rodolfo Lima">Rodolfo Lima</option>
+<option value="Rogerio Bizoni">Rogerio Bizoni</option>
+<option value="Rogério Bizoni">Rogério Bizoni</option>
+<option value="Rogério Theodoro Vieir">Rogério Theodoro Vieir</option>
+<option value="Tainá Morais Alves">Tainá Morais Alves</option>
+<option value="Thaís Silva de Oliveira">Thaís Silva de Oliveira</option>
+<option value="Thobias Ampessan Lemos Silva">Thobias Ampessan Lemos Silva</option>
+<option value="Tiago Jose Jezewski">Tiago Jose Jezewski</option>
+<option value="Tulio Pupim">Tulio Pupim</option>
+<option value="Vasconcelos Oliveira">Vasconcelos Oliveira</option>
+<option value="Wanderson Borges">Wanderson Borges</option>
+<option value="Wanderson da Silva Borges">Wanderson da Silva Borges</option></select>
+    </div>
+    <div class="filter-group">
+      <label>📍 Localidade</label>
+      <select id="fLocalidade"><option value="">Todas as Localidades</option><option value="2.1696.11 - Syngenta Seeds Uberlândia">Syngenta Seeds Uberlândia</option>
+<option value="2.1696.15 - Syngenta Seeds Matriz São Paulo">Syngenta Seeds Matriz São Paulo</option>
+<option value="2.1696.16 - Syngenta Seeds Goiânia">Syngenta Seeds Goiânia</option>
+<option value="2.1696.18 - Syngenta Seeds Div Agro Uberlândia">Syngenta Seeds Div Agro Uberlândia</option>
+<option value="2.1696.18 - Syngenta Seeds Uberlândia">Syngenta Seeds Uberlândia</option>
+<option value="2.1696.19 - Syngenta Seeds Formosa">Syngenta Seeds Formosa</option>
+<option value="2.1696.2 - Syngenta Seeds Matriz Uberlândia">Syngenta Seeds Matriz Uberlândia</option>
+<option value="2.1696.20 - Syngenta Seeds Matão">Syngenta Seeds Matão</option>
+<option value="2.1696.21 - Syngenta Seeds Cascavel">Syngenta Seeds Cascavel</option>
+<option value="2.1696.22 - Syngenta Seeds Matão Geral">Syngenta Seeds Matão Geral</option>
+<option value="2.1696.22 - Syngenta Seeds Matão HSE">Syngenta Seeds Matão HSE</option>
+<option value="2.1696.23 - Syngenta Seeds Cascavel">Syngenta Seeds Cascavel</option>
+<option value="2.1696.24 - Syngenta Seeds Formosa">Syngenta Seeds Formosa</option>
+<option value="2.1696.26 - Syngenta Seeds Parent Seeds Abelardo Luz">Syngenta Seeds Parent Seeds Abelardo Luz</option>
+<option value="2.1696.30 - Syngenta Seeds Ribeirão Preto">Syngenta Seeds Ribeirão Preto</option>
+<option value="2.1696.32 - Syngenta Seeds Londrina">Syngenta Seeds Londrina</option>
+<option value="2.1696.38 - Syngenta Seeds Abelardo Luz">Syngenta Seeds Abelardo Luz</option>
+<option value="2.1696.5 - Syngenta Seeds Ituiutaba">Syngenta Seeds Ituiutaba</option>
+<option value="2.1696.6 - Syngenta Seeds Aracati">Syngenta Seeds Aracati</option>
+<option value="2.2126.11 - Syngenta Sdo Porto Nacional">Syngenta Sdo Porto Nacional</option>
+<option value="2.2126.12 - Syngenta SDO Lucas do Rio Verde">Syngenta SDO Lucas do Rio Verde</option>
+<option value="2.2126.13 - Syngenta SDO Aracati">Syngenta SDO Aracati</option>
+<option value="2.2126.14 - Syngenta Cascavel">Syngenta Cascavel</option>
+<option value="2.2126.15 - Syngenta Seeds Aracati">Syngenta Seeds Aracati</option>
+<option value="2.2126.5 - Syngenta SDO Uberlândia">Syngenta SDO Uberlândia</option></select>
+    </div>
+    <div class="filter-group">
+      <label>💼 Cargo</label>
+      <select id="fCargo"><option value="">Todos os Cargos</option><option value="Ajudante de Beneficiamento">Ajudante de Beneficiamento</option>
+<option value="Ajudante de Campo III">Ajudante de Campo III</option>
+<option value="Ajudante de Pesquisa">Ajudante de Pesquisa</option>
+<option value="Ajudante de Pesquisa I">Ajudante de Pesquisa I</option>
+<option value="Ajudante de Pesquisa II">Ajudante de Pesquisa II</option>
+<option value="Ajudante de Pesquisa III">Ajudante de Pesquisa III</option>
+<option value="Ajudante de Pesquisa lll">Ajudante de Pesquisa lll</option>
+<option value="Ajudante de Processamento">Ajudante de Processamento</option>
+<option value="Ajudante de Recebimento">Ajudante de Recebimento</option>
+<option value="Ajudante de Secador / Debulha">Ajudante de Secador / Debulha</option>
+<option value="Analista Administrativo">Analista Administrativo</option>
+<option value="Analista Administrativo JR">Analista Administrativo JR</option>
+<option value="Analista Administrativo Junior">Analista Administrativo Junior</option>
+<option value="Analista Administrativo Júnior">Analista Administrativo Júnior</option>
+<option value="Analista Administrativo Pleno">Analista Administrativo Pleno</option>
+<option value="Analista Administrativo de Vendas">Analista Administrativo de Vendas</option>
+<option value="Analista de Compras">Analista de Compras</option>
+<option value="Analista de Dados">Analista de Dados</option>
+<option value="Analista de Expansão de Franquia Jr">Analista de Expansão de Franquia Jr</option>
+<option value="Analista de Facilities">Analista de Facilities</option>
+<option value="Analista de Faturamento">Analista de Faturamento</option>
+<option value="Analista de HSE">Analista de HSE</option>
+<option value="Analista de Laboratório">Analista de Laboratório</option>
+<option value="Analista de Laboratório II">Analista de Laboratório II</option>
+<option value="Analista de Laboratório III">Analista de Laboratório III</option>
+<option value="Analista de Logística Junior">Analista de Logística Junior</option>
+<option value="Analista de Logística Júnior">Analista de Logística Júnior</option>
+<option value="Analista de Marketing Junior">Analista de Marketing Junior</option>
+<option value="Analista de Operações e Manutenção">Analista de Operações e Manutenção</option>
+<option value="Analista de Planejamento Junior">Analista de Planejamento Junior</option>
+<option value="Analista de Projetos Pleno">Analista de Projetos Pleno</option>
+<option value="Analista de Suporte a Vendas">Analista de Suporte a Vendas</option>
+<option value="Analista de Vendas">Analista de Vendas</option>
+<option value="Assistente Administrativo">Assistente Administrativo</option>
+<option value="Assistente Administrativo Pleno">Assistente Administrativo Pleno</option>
+<option value="Assistente Administrativo Sênior">Assistente Administrativo Sênior</option>
+<option value="Assistente Técnico">Assistente Técnico</option>
+<option value="Assistente de Campo">Assistente de Campo</option>
+<option value="Assistente de Comunicação">Assistente de Comunicação</option>
+<option value="Assistente de HSE">Assistente de HSE</option>
+<option value="Assistente de Laboratório">Assistente de Laboratório</option>
+<option value="Assistente de Laboratório II">Assistente de Laboratório II</option>
+<option value="Assistente de Laboratório III">Assistente de Laboratório III</option>
+<option value="Assistente de Laboratório ll">Assistente de Laboratório ll</option>
+<option value="Assistente de Tecnologia da Informação">Assistente de Tecnologia da Informação</option>
+<option value="Auxiliar Administrativo">Auxiliar Administrativo</option>
+<option value="Auxiliar de Manutenção">Auxiliar de Manutenção</option>
+<option value="Auxiliar de UBS">Auxiliar de UBS</option>
+<option value="Auxiliar de laboratório">Auxiliar de laboratório</option>
+<option value="Controlador de Estoque">Controlador de Estoque</option>
+<option value="Operador D">Operador D</option>
+<option value="Supervisor de Manutenção">Supervisor de Manutenção</option>
+<option value="Supervisor de Operações e Logística">Supervisor de Operações e Logística</option></select>
+    </div>
+    <div class="filter-group">
+      <label>🏭 Macro Área (Col AH)</label>
+      <select id="fMacro"><option value="">Todas as Macro Áreas</option><option value="Direct Procurement & Sustainability">Direct Procurement & Sustainability</option>
+<option value="Operações Comerciais">Operações Comerciais</option>
+<option value="P">P</option>
+<option value="P&S">P&S</option>
+<option value="Parent Seeds">Parent Seeds</option>
+<option value="Plant Operations">Plant Operations</option>
+<option value="Quality">Quality</option>
+<option value="R&D">R&D</option>
+<option value="SPR">SPR</option>
+<option value="Supply">Supply</option></select>
+    </div>
+    <div class="filter-group">
+      <label>⏱️ Tempo de Casa</label>
+      <select id="fTempo">
+        <option value="">Todos</option>
+        <option value="mais24">Mais de 24 meses</option>
+        <option value="ate24">Até 24 meses</option>
+      </select>
+    </div>
+    <div class="filter-actions">
+      <button class="btn btn-outline" onclick="clearFilters()">✕ Limpar</button>
+    </div>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-section">
+    <div class="kpi-card">
+      <span class="kpi-icon">💰</span>
+      <div class="kpi-label">Custo Total 2025</div>
+      <div class="kpi-value">R$ 21,3M</div>
+      <div class="kpi-sub">R$ 21,277,216.81</div>
+    </div>
+    <div class="kpi-card lime">
+      <span class="kpi-icon">👥</span>
+      <div class="kpi-label">Recursos Ativos</div>
+      <div class="kpi-value">272</div>
+      <div class="kpi-sub">referência Dez/2025</div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-icon">🏢</span>
+      <div class="kpi-label">Localidades</div>
+      <div class="kpi-value">25</div>
+      <div class="kpi-sub">sites Syngenta</div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-icon">🗺️</span>
+      <div class="kpi-label">Gestores Syngenta</div>
+      <div class="kpi-value">62</div>
+      <div class="kpi-sub">responsáveis ativos</div>
+    </div>
+    <div class="kpi-card orange">
+      <span class="kpi-icon">⚠️</span>
+      <div class="kpi-label">Adm. &gt; 24 Meses</div>
+      <div class="kpi-value orange">79</div>
+      <div class="kpi-sub">29.0% do headcount Dez/25</div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 1 -->
+  <div class="sec-title">📊 Visão Geral de Custos e Distribuição</div>
+
+  <div class="charts-2col">
+    <div class="chart-card">
+      <div class="chart-label">📈 Evolução Mensal — Custo &amp; Headcount 2025</div>
+      <canvas id="chartMensal" height="130"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-label">⚧ Distribuição por Gênero</div>
+      <div class="donut-wrap">
+        <canvas id="chartGenero" height="130"></canvas>
+        <div class="donut-center">
+          <div class="donut-center-val">272</div>
+          <div class="donut-center-lbl">recursos</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-half">
+    <div class="chart-card">
+      <div class="chart-label">🏭 Custo por Localidade (Top 8)</div>
+      <canvas id="chartLocal" height="155"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-label">💼 Custo por Cargo (Top 8)</div>
+      <canvas id="chartCargo" height="155"></canvas>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 2 -->
+  <div class="sec-title">⏱️ Análise de Tempo de Casa — Admissão &gt; 24 Meses</div>
+
+  <div class="charts-half" style="padding-bottom:16px;">
+    <div class="chart-card">
+      <div class="chart-label">📊 Distribuição por Faixa de Tempo (Dez/2025)</div>
+      <canvas id="chartFaixa" height="155"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-label">🏭 Recursos por Macro Área — ≤ 24m vs &gt; 24m</div>
+      <canvas id="chartMacroStacked" height="155"></canvas>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 3 -->
+  <div class="sec-title">🏭 Macro Áreas P&amp;S Seeds — Coluna AH (Dez/2025)</div>
+
+  <div class="chart-full" style="padding-bottom:16px;">
+    <div class="chart-card">
+      <div class="chart-label">📋 Headcount Total vs &gt; 24 Meses por Macro Área</div>
+      <canvas id="chartMacroBar" height="110"></canvas>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 4 -->
+  <div class="sec-title">🗂️ Centro de Custo — Coluna N (Dez/2025)</div>
+
+  <div class="chart-full" style="padding-bottom:28px;">
+    <div class="chart-card">
+      <div class="chart-label">📋 Headcount por Centro de Custo — Top 15 (Dez/2025)</div>
+      <canvas id="chartCC" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <span class="footer-logo">SYNGENTA</span>
+    <span>© 2026 <strong>Syngenta Seeds</strong> — Gestão de Terceiros P&S | Confidencial</span>
+  </div>
+
+</div><!-- .page -->
+
+<script>
+Chart.register(ChartDataLabels);
+
+// ── DATA ─────────────────────────────────────────────────────────
+const MONTH_LABELS  = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+const MONTH_VALUES  = [1598461.38, 1579835.31, 1643882.29, 1669134.55, 1750003.21, 1734196.71, 1727670.16, 1861949.14, 1976456.24, 1993998.67, 1651858.99, 2089770.16];
+const MONTH_HC      = [233, 223, 233, 234, 242, 240, 237, 247, 266, 267, 274, 272];
+const LOCAL_LABELS  = ["Syngenta Seeds Uberl\u00e2ndia", "Syngenta Seeds Formosa", "Syngenta Sdo Porto Nacional", "Syngenta SDO Aracati", "Syngenta Seeds Mat\u00e3o", "Syngenta SDO Uberl\u00e2ndia", "Syngenta SDO Lucas do Rio Verde", "Syngenta Seeds Matriz Uberl\u00e2ndia"];
+const LOCAL_VALUES  = [7810515.84, 3192037.87, 2315787.62, 1554425.07, 1438738.05, 1291093.76, 1142647.41, 484138.41];
+const CARGO_LABELS  = ["Assistente de Laborat\u00f3rio", "Ajudante de Pesquisa lll", "Ajudante de Beneficiamento", "Ajudante de Pesquisa I", "Ajudante de Processamento", "Ajudante de Pesquisa III", "Assistente Administrativo Pleno", "Analista Administrativo Junior"];
+const CARGO_VALUES  = [5483581.82, 1883133.91, 1440007.66, 1354098.43, 1097438.84, 937096.16, 830747.81, 570153.28];
+const GEN_LABELS    = ["Feminino", "Masculino"];
+const GEN_PCTS      = [54.8, 45.2];
+const FAIXA_LABELS  = ["0\u20136m", "7\u201312m", "13\u201318m", "19\u201324m", "25\u201336m", "37\u201348m", "49\u201360m", "+60m"];
+const FAIXA_VALUES  = [78, 60, 29, 20, 37, 27, 10, 5];
+const MACRO_LABELS  = ["R&D", "Plant Operations", "Quality", "Parent Seeds", "P&S", "SPR", "Supply", "Opera\u00e7\u00f5es Comerciais", "Direct Procurement & Sustainability", "P"];
+const MACRO_TOTAL   = [104, 71, 37, 27, 13, 9, 5, 4, 1, 1];
+const MACRO_MAIS24  = [30, 13, 18, 11, 0, 3, 4, 0, 0, 0];
+const MACRO_MENOS24 = [74, 58, 19, 16, 13, 6, 1, 4, 1, 1];
+const CC_LABELS     = ["Processo 2", "BR55CNP2AX", "Processo 1", "BR55SYT078", "BR55CNP2AU (P02)", "BR55SXT051", "BR55CNT072", "BR55CNT391", "BR55CNP2AQ (P01)", "BR55SXR431", "BR55CNT500", "BR55CNT390", "BR55CND200", "BR55CNT392", "BR55CNP2AS (1)"];
+const CC_VALUES     = [41, 37, 24, 19, 15, 15, 14, 10, 8, 8, 8, 6, 5, 5, 4];
+const DEC = 11;
+
+// ── SYNGENTA PALETTES ────────────────────────────────────────────
+const SYN_GREEN = [
+  'rgba(0,92,46,.85)','rgba(0,166,81,.85)','rgba(120,190,32,.85)',
+  'rgba(0,130,60,.85)','rgba(60,185,75,.85)','rgba(184,217,134,.85)',
+  'rgba(0,60,30,.85)','rgba(90,200,120,.85)'
+];
+const SYN_GREEN_REV = [...SYN_GREEN].reverse();
+
+const grid  = 'rgba(0,166,81,0.10)';
+const tickC = '#3D5A32';
+const tick2 = '#1C2B39';
+
+// ── CHART 1 — Monthly ────────────────────────────────────────────
+const barBg = MONTH_VALUES.map((_,i) => i===DEC ? 'rgba(247,148,29,.90)' : 'rgba(0,166,81,.75)');
+const barBd = MONTH_VALUES.map((_,i) => i===DEC ? 'rgba(247,148,29,1)'   : 'rgba(0,130,60,.5)');
+
+new Chart(document.getElementById('chartMensal'), {
+  type:'bar',
+  data:{ labels:MONTH_LABELS, datasets:[
+    { type:'bar', label:'Custo (R$)', data:MONTH_VALUES,
+       backgroundColor:barBg, borderColor:barBd, borderWidth:1, borderRadius:3, yAxisID:'y',
+       datalabels:{
+         display: ctx => ctx.dataIndex===DEC,
+         anchor:'end', align:'end', offset:2,
+         color:'rgba(247,148,29,1)', font:{size:10,weight:'bold'},
+         formatter: v => 'R$'+(v/1e6).toFixed(2)+'M'
+       }
+    },
+    { type:'line', label:'Headcount', data:MONTH_HC,
+       borderColor:'rgba(0,92,46,1)', backgroundColor:'rgba(0,92,46,.07)',
+       pointBackgroundColor: MONTH_HC.map((_,i)=>i===DEC?'rgba(0,92,46,1)':'rgba(0,92,46,.7)'),
+       pointBorderColor:'#fff', pointRadius:MONTH_HC.map((_,i)=>i===DEC?5:3),
+       fill:false, tension:0.4, yAxisID:'y2',
+       datalabels:{
+         display: ctx => ctx.dataIndex===DEC,
+         anchor:'start', align:'bottom', offset:6,
+         color:'rgba(0,92,46,1)', font:{size:10,weight:'bold'},
+         formatter: v => v+' rec.'
+       }
+    }
+  ]},
+  options:{
+    responsive:true,
+    interaction:{mode:'index',intersect:false},
+    layout:{padding:{top:28,bottom:20}},
+    plugins:{
+      legend:{labels:{color:tick2,font:{size:10}}},
+      tooltip:{enabled:true},
+      datalabels:{clip:false}
+    },
+    scales:{
+      x:{ticks:{color:tickC,font:{size:9}},grid:{color:grid}},
+      y:{type:'linear',position:'left',
+          ticks:{color:tickC,font:{size:9},callback:v=>'R$'+(v/1000).toFixed(0)+'K'},
+          grid:{color:grid}},
+      y2:{type:'linear',position:'right',
+           ticks:{color:'rgba(0,92,46,1)',font:{size:9}},
+           grid:{drawOnChartArea:false},min:180,max:310}
+    }
+  }
+});
+
+// ── CHART 2 — Gênero donut ───────────────────────────────────────
+new Chart(document.getElementById('chartGenero'), {
+  type:'doughnut',
+  data:{ labels:GEN_LABELS, datasets:[{
+    data:GEN_PCTS,
+    backgroundColor:['rgba(120,190,32,.85)','rgba(0,92,46,.85)'],
+    borderColor:['#78BE20','#005C2E'], borderWidth:2, hoverOffset:5
+  }]},
+  options:{
+    responsive:true, cutout:'62%',
+    plugins:{
+      legend:{position:'bottom',labels:{color:tick2,font:{size:10},padding:12}},
+      tooltip:{enabled:false},
+      datalabels:{
+        color:'#fff', font:{size:12,weight:'bold'},
+        formatter:(v,ctx)=>ctx.chart.data.labels[ctx.dataIndex]+'\n'+v+'%'
+      }
+    }
+  }
+});
+
+// ── CHART 3 — Localidade ─────────────────────────────────────────
+new Chart(document.getElementById('chartLocal'), {
+  type:'bar',
+  data:{ labels:LOCAL_LABELS, datasets:[{
+    label:'Custo', data:LOCAL_VALUES,
+    backgroundColor:SYN_GREEN, borderColor:'rgba(0,166,81,.3)',
+    borderWidth:1, borderRadius:3
+  }]},
+  options:{
+    indexAxis:'y', responsive:true,
+    layout:{padding:{right:62}},
+    plugins:{
+      legend:{display:false}, tooltip:{enabled:false},
+      datalabels:{anchor:'end',align:'right',color:tickC,font:{size:9},
+        formatter:v=>'R$'+(v/1e6).toFixed(1)+'M'}
+    },
+    scales:{
+      x:{ticks:{color:tickC,font:{size:9},callback:v=>'R$'+(v/1e6).toFixed(1)+'M'},grid:{color:grid}},
+      y:{ticks:{color:tick2,font:{size:9}},grid:{display:false}}
+    }
+  }
+});
+
+// ── CHART 4 — Cargo ──────────────────────────────────────────────
+new Chart(document.getElementById('chartCargo'), {
+  type:'bar',
+  data:{ labels:CARGO_LABELS, datasets:[{
+    label:'Custo', data:CARGO_VALUES,
+    backgroundColor:SYN_GREEN_REV, borderColor:'rgba(0,166,81,.3)',
+    borderWidth:1, borderRadius:3
+  }]},
+  options:{
+    indexAxis:'y', responsive:true,
+    layout:{padding:{right:62}},
+    plugins:{
+      legend:{display:false}, tooltip:{enabled:false},
+      datalabels:{anchor:'end',align:'right',color:tickC,font:{size:9},
+        formatter:v=>'R$'+(v/1000).toFixed(0)+'K'}
+    },
+    scales:{
+      x:{ticks:{color:tickC,font:{size:9},callback:v=>'R$'+(v/1000).toFixed(0)+'K'},grid:{color:grid}},
+      y:{ticks:{color:tick2,font:{size:9}},grid:{display:false}}
+    }
+  }
+});
+
+// ── CHART 5 — Faixa de tempo ─────────────────────────────────────
+const faixaBg = [
+  'rgba(0,166,81,.80)','rgba(0,166,81,.80)','rgba(0,166,81,.80)','rgba(0,166,81,.80)',
+  'rgba(247,148,29,.85)','rgba(247,148,29,.85)','rgba(247,148,29,.85)','rgba(247,148,29,.85)'
+];
+new Chart(document.getElementById('chartFaixa'), {
+  type:'bar',
+  data:{ labels:["0\u20136m", "7\u201312m", "13\u201318m", "19\u201324m", "25\u201336m", "37\u201348m", "49\u201360m", "+60m"], datasets:[{
+    label:'Recursos', data:[78, 60, 29, 20, 37, 27, 10, 5],
+    backgroundColor:faixaBg,
+    borderColor:faixaBg.map(c=>c.replace('.80','1').replace('.85','1')),
+    borderWidth:1, borderRadius:4
+  }]},
+  options:{
+    responsive:true, layout:{padding:{top:22}},
+    plugins:{
+      legend:{display:false}, tooltip:{enabled:false},
+      datalabels:{anchor:'end',align:'end',color:tick2,font:{size:10,weight:'bold'},formatter:v=>v}
+    },
+    scales:{
+      x:{ticks:{color:tickC,font:{size:9}},grid:{color:grid}},
+      y:{ticks:{color:tickC,font:{size:9}},grid:{color:grid}}
+    }
+  }
+});
+
+// ── CHART 6 — Macro stacked ≤24 vs >24 ──────────────────────────
+new Chart(document.getElementById('chartMacroStacked'), {
+  type:'bar',
+  data:{ labels:MACRO_LABELS, datasets:[
+    { label:'≤ 24 meses', data:MACRO_MENOS24,
+       backgroundColor:'rgba(0,166,81,.82)', borderColor:'rgba(0,130,60,.4)',
+       borderWidth:1, borderRadius:3,
+       datalabels:{display:ctx=>ctx.raw>0,anchor:'center',align:'center',
+         color:'#fff',font:{size:9},formatter:v=>v}
+    },
+    { label:'> 24 meses', data:MACRO_MAIS24,
+       backgroundColor:'rgba(247,148,29,.85)', borderColor:'rgba(247,148,29,.5)',
+       borderWidth:1, borderRadius:3,
+       datalabels:{display:ctx=>ctx.raw>0,anchor:'center',align:'center',
+         color:'#fff',font:{size:9},formatter:v=>v}
+    }
+  ]},
+  options:{
+    responsive:true,
+    plugins:{
+      legend:{labels:{color:tick2,font:{size:10}}},
+      tooltip:{enabled:false}, datalabels:{clip:false}
+    },
+    scales:{
+      x:{stacked:true,ticks:{color:tickC,font:{size:8},maxRotation:30},grid:{color:grid}},
+      y:{stacked:true,ticks:{color:tickC,font:{size:9}},grid:{color:grid}}
+    }
+  }
+});
+
+// ── CHART 7 — Macro grouped total vs >24m ────────────────────────
+new Chart(document.getElementById('chartMacroBar'), {
+  type:'bar',
+  data:{ labels:MACRO_LABELS, datasets:[
+    { label:'Total Headcount', data:MACRO_TOTAL,
+       backgroundColor:'rgba(0,92,46,.82)', borderColor:'rgba(0,130,60,.35)',
+       borderWidth:1, borderRadius:3,
+       datalabels:{anchor:'end',align:'end',color:'rgba(0,92,46,1)',
+         font:{size:9,weight:'bold'},formatter:v=>v}
+    },
+    { label:'> 24 meses', data:MACRO_MAIS24,
+       backgroundColor:'rgba(247,148,29,.85)', borderColor:'rgba(247,148,29,.4)',
+       borderWidth:1, borderRadius:3,
+       datalabels:{anchor:'end',align:'end',color:'rgba(200,100,0,1)',
+         font:{size:9,weight:'bold'},formatter:v=>v>0?v:''}
+    }
+  ]},
+  options:{
+    responsive:true, layout:{padding:{top:22}},
+    plugins:{
+      legend:{labels:{color:tick2,font:{size:10}}},
+      tooltip:{enabled:false}, datalabels:{clip:false}
+    },
+    scales:{
+      x:{ticks:{color:tickC,font:{size:9},maxRotation:20},grid:{color:grid}},
+      y:{ticks:{color:tickC,font:{size:9}},grid:{color:grid}}
+    }
+  }
+});
+
+// ── CHART 8 — Centro de Custo ─────────────────────────────────────
+new Chart(document.getElementById('chartCC'), {
+  type:'bar',
+  data:{ labels:CC_LABELS, datasets:[{
+    label:'Recursos', data:CC_VALUES,
+    backgroundColor:SYN_GREEN, borderColor:'rgba(0,166,81,.3)',
+    borderWidth:1, borderRadius:3
+  }]},
+  options:{
+    indexAxis:'y', responsive:true,
+    layout:{padding:{right:30}},
+    plugins:{
+      legend:{display:false}, tooltip:{enabled:false},
+      datalabels:{anchor:'end',align:'right',
+        color:'rgba(0,92,46,1)',font:{size:10,weight:'bold'},formatter:v=>v}
+    },
+    scales:{
+      x:{max:Math.max(...CC_VALUES)+8,
+          ticks:{color:tickC,font:{size:9},stepSize:5},grid:{color:grid}},
+      y:{ticks:{color:tick2,font:{size:9.5}},grid:{display:false}}
+    }
+  }
+});
+
+// ── CONTROLS ─────────────────────────────────────────────────────
+function clearFilters(){
+  ['fGestor','fLocalidade','fCargo','fMacro','fTempo']
+    .forEach(id=>document.getElementById(id).value='');
+}
+
+function toggleEdit(){
+  const on = document.getElementById('btnEdit').dataset.active!=='true';
+  document.getElementById('btnEdit').dataset.active = on;
+  const sel='.header h1,.header h2,.header-meta,.kpi-label,.kpi-value,.kpi-sub,.sec-title,.chart-label,.footer';
+  document.querySelectorAll(sel).forEach(el=>el.contentEditable=on?'true':'false');
+  const btn=document.getElementById('btnEdit');
+  btn.textContent=on?'✅ Concluir Edição':'✏️ Editar';
+  btn.classList.toggle('btn-edit-active',on);
+  btn.classList.toggle('btn-outline',!on);
+}
+
+function exportPDF(){
+  const s=document.createElement('style');
+  s.id='pdfHide';
+  s.textContent='.toolbar{display:none!important}.filter-actions{display:none!important}';
+  document.head.appendChild(s);
+  window.print();
+  setTimeout(()=>document.getElementById('pdfHide').remove(),600);
+}
+</script>
+</body>
+</html>
